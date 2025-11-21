@@ -1,0 +1,26 @@
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Variables de entorno (secrets - secretos)
+.env
+
+# Configuración de editores
+.vscode/
+.idea/
+*.sublime-*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
