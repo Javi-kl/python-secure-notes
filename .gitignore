@@ -22,5 +22,8 @@ env/
 .DS_Store
 Thumbs.db
 
+# Archivos .json
+*.json
+
 # Jupyter Notebook
 .ipynb_checkpoints

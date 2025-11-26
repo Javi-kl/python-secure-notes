@@ -1,33 +1,59 @@
 import json
+import os
+import time
 
 
 class ArchivoSeguro:
     def __init__(self) -> None:
-        self.archivo_seguro = []
+        self.titulo_archivo_seguro = "cajafuerte.json"
+        self.contenido = {}
 
-    def guardar_archivo(self) -> bool:
-        pass
-
+    def guardar_contenido(self): #TODO
+        self.contenido = 
+    
     def crear_archivo(self):
-        titulo_archivo = f"cajafuerte{1}.json"
-        contenido_vacio = {"titulo": "", "cuerpo": ""}
-        with open(titulo_archivo, "w") as file:
-            json.dump(contenido_vacio, file, indent=2)
+        self.contenido = {
+            "titulo": "cajafuerte.json",
+            "cuerpo": "Este es un ejemplo de nota segura",
+        }
+
+        with open(self.titulo_archivo_seguro, "w") as file:
+            json.dump(self.contenido, file, indent=2)
 
     def existencia_archivo(self) -> bool:
-        return len(self.archivo_seguro) > 0
+        return os.path.isfile(self.titulo_archivo_seguro)
 
-    def eliminar_archivo_seguro(self) -> bool:
-        pass
+    def eliminar_archivo_seguro(self):
+        os.remove(self.titulo_archivo_seguro)
+
+
+class RecolectorDatos:
+    # Este metodo sirve para crear, o modificar notas en general
+
+    @staticmethod
+    def recibir_inputs():
+        titulo_input = input("Introduce el titulo de la nota.\n-> ")
+        cuerpo_input = input("Introduce el cuerpo de la nota.\n-> ")
+        contenido = {"titulo": titulo_input, "cuerpo": cuerpo_input}
+        return contenido
 
 
 class AdministradorNotas:
-
-    def __init__(self) -> None:
-        pass
+    # No tengo claro porque debo/buena practica, pasar estas instancias como atributo, si puedo acceder directamente a ellas.
+    def __init__(
+        self, recolector_datos: RecolectorDatos, archivo_seguro: ArchivoSeguro
+    ) -> None:
+        self.recolector_datos = recolector_datos
+        self.archivo_seguro = archivo_seguro
 
     def crear_nota(self):
-        pass
+        if archivo_seguro.existencia_archivo():
+            #TODO Esto debe hacerse en archivoseguro.guardarcontenido =???????
+            contenido = recolector_datos.recibir_inputs()
+            with open(archivo_seguro.titulo_archivo_seguro, "a") as file:
+                json.dump(contenido, file, indent=4)
+        else:
+            print("El archivo no existe, reinicia el programa para crear uno nuevo")
 
     def listar_titulos(self):
         pass
@@ -38,7 +64,7 @@ class AdministradorNotas:
     def mostrar_contenido(self):
         pass
 
-    def comprobar_existencia_nota(self) -> bool:
+    def existencia_nota(self) -> bool:
         pass
 
     def eliminar_nota(self) -> bool:
@@ -46,27 +72,23 @@ class AdministradorNotas:
 
 
 archivo_seguro = ArchivoSeguro()
-administrador_notas = AdministradorNotas()
+recolector_datos = RecolectorDatos()
+administrador_notas = AdministradorNotas(recolector_datos, archivo_seguro)
 
 
 def menu_principal():
     print("Bienvenido")
     # 1.-
-    print(archivo_seguro.existencia_archivo())
-    if archivo_seguro.existencia_archivo() == False:
-        archivo_seguro.crear_archivo()
-        print(f"Existencia: {archivo_seguro.existencia_archivo()}")
+    if archivo_seguro.existencia_archivo():
+        print(f"Accediendo al programa...")
+        time.sleep(1)
     else:
-        # Load archivo seguro
-        """Si no existe ningun archivo seguro: # TODO
-        print("Creando archivo seguro ")
-        Delay 2 seg
-        Si existe:
-        print("Accediendo al archivo seguro")
-        Delay 2 seg
-        """
+        print(f"Creando archivo seguro...")
+        archivo_seguro.crear_archivo()
+        time.sleep(1)
+
     while True:
-        print("Menú principal:")
+        print("\n--- Menú principal ---")
         print("1 -> Nueva nota")
         print("2 -> Listar notas")
         print("3 -> Eliminar archivo seguro")
@@ -75,7 +97,7 @@ def menu_principal():
 
         match opcion_menu_principal:
             case "1":
-                pass
+                administrador_notas.crear_nota()
             case "2":
                 opcion_notas = str(
                     input(
@@ -96,12 +118,23 @@ def menu_principal():
                     print("La nota no existe o el titulo esta mal (manejar error)???")
                 else:
                     print("Introduce una opción valida, Indica la excepcion")
-                    raise Exception
-                
+                    raise Exception"""
+
             case "3":
-                pass
+                print(
+                    "¿Estas seguro de querer eliminar el archivo seguro?\n3 -> Si\n4 -> Atrás"
+                )
+                confirmacion = input()
+                match confirmacion:
+                    case "3":
+                        print("Archivo borrado")
+                        archivo_seguro.eliminar_archivo_seguro()
+                    case "4":
+                        continue
+
             case "4":
-                break"""
+                print("Saliendo")
+                break
 
 
 menu_principal()
