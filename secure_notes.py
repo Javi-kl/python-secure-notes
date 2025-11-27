@@ -5,58 +5,62 @@ import time
 
 class ArchivoSeguro:
     def __init__(self) -> None:
-        self.titulo_archivo_seguro = "cajafuerte.json"
-        self.contenido = {}
+        self.titulo_archivo = "cajafuerte.json"
 
-    def guardar_contenido(self): #TODO
-        self.contenido = 
-    
     def crear_archivo(self):
-        self.contenido = {
-            "titulo": "cajafuerte.json",
-            "cuerpo": "Este es un ejemplo de nota segura",
-        }
-
-        with open(self.titulo_archivo_seguro, "w") as file:
-            json.dump(self.contenido, file, indent=2)
+        with open(self.titulo_archivo, "w") as file:
+            json.dump([], file, indent=2)
 
     def existencia_archivo(self) -> bool:
-        return os.path.isfile(self.titulo_archivo_seguro)
+        return os.path.isfile(self.titulo_archivo)
 
     def eliminar_archivo_seguro(self):
-        os.remove(self.titulo_archivo_seguro)
+        os.remove(self.titulo_archivo)
 
 
 class RecolectorDatos:
-    # Este metodo sirve para crear, o modificar notas en general
-
     @staticmethod
     def recibir_inputs():
         titulo_input = input("Introduce el titulo de la nota.\n-> ")
         cuerpo_input = input("Introduce el cuerpo de la nota.\n-> ")
-        contenido = {"titulo": titulo_input, "cuerpo": cuerpo_input}
+        contenido = {
+            "titulo": titulo_input,
+            "cuerpo": cuerpo_input,
+        }
         return contenido
 
 
 class AdministradorNotas:
     # No tengo claro porque debo/buena practica, pasar estas instancias como atributo, si puedo acceder directamente a ellas.
-    def __init__(
-        self, recolector_datos: RecolectorDatos, archivo_seguro: ArchivoSeguro
-    ) -> None:
-        self.recolector_datos = recolector_datos
-        self.archivo_seguro = archivo_seguro
+    def __init__(self, recolector: RecolectorDatos, archivo: ArchivoSeguro) -> None:
+        self.recolector = recolector
+        self.archivo = archivo
 
     def crear_nota(self):
-        if archivo_seguro.existencia_archivo():
-            #TODO Esto debe hacerse en archivoseguro.guardarcontenido =???????
-            contenido = recolector_datos.recibir_inputs()
-            with open(archivo_seguro.titulo_archivo_seguro, "a") as file:
-                json.dump(contenido, file, indent=4)
+        if archivo.existencia_archivo():
+            contenido = recolector.recibir_inputs()
+            with open(archivo.titulo_archivo, "r") as file:
+                notas = json.load(file)  # Extrae la lista que hay dentro del json
+                notas.append(contenido)
+
+            with open(archivo.titulo_archivo, "w+") as file:
+                json.dump(notas, file, indent=4)
+            # return True
         else:
             print("El archivo no existe, reinicia el programa para crear uno nuevo")
+            # En un futuro quizas aplicar aqui la opción de crear un nuevo archivo seguro
+            # return False
 
     def listar_titulos(self):
-        pass
+        if archivo.existencia_archivo() and administrador.existencia_nota():
+            with open(archivo.titulo_archivo, "r") as file:
+                notas = json.load(file)
+                for nota in notas:
+                    print(f"Nota: {nota['titulo']}")
+
+        else:
+            print("No existen notas, crea alguna primero")
+            return
 
     def modificar(self):
         pass
@@ -65,26 +69,28 @@ class AdministradorNotas:
         pass
 
     def existencia_nota(self) -> bool:
-        pass
+        with open(archivo.titulo_archivo, "r") as file:
+            notas = json.load(file)
+            return len(notas) >= 1
 
     def eliminar_nota(self) -> bool:
         pass
 
 
-archivo_seguro = ArchivoSeguro()
-recolector_datos = RecolectorDatos()
-administrador_notas = AdministradorNotas(recolector_datos, archivo_seguro)
+archivo = ArchivoSeguro()
+recolector = RecolectorDatos()
+administrador = AdministradorNotas(recolector, archivo)
 
 
 def menu_principal():
     print("Bienvenido")
     # 1.-
-    if archivo_seguro.existencia_archivo():
+    if archivo.existencia_archivo():
         print(f"Accediendo al programa...")
         time.sleep(1)
     else:
         print(f"Creando archivo seguro...")
-        archivo_seguro.crear_archivo()
+        archivo.crear_archivo()
         time.sleep(1)
 
     while True:
@@ -97,8 +103,9 @@ def menu_principal():
 
         match opcion_menu_principal:
             case "1":
-                administrador_notas.crear_nota()
+                administrador.crear_nota()
             case "2":
+                administrador.listar_titulos()
                 opcion_notas = str(
                     input(
                         "Escribe el titulo de una nota para mas opciones"
@@ -128,7 +135,7 @@ def menu_principal():
                 match confirmacion:
                     case "3":
                         print("Archivo borrado")
-                        archivo_seguro.eliminar_archivo_seguro()
+                        archivo.eliminar_archivo_seguro()
                     case "4":
                         continue
 
