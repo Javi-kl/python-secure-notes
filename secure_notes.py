@@ -39,48 +39,32 @@ class Notas:
     def crear(self):
         contenido = recolector.recibir_inputs()
         with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)  # Extrae la lista que hay dentro del json
+            notas = json.load(file)
             notas.append(contenido)
         with open(archivo.titulo_archivo, "w") as file:
             json.dump(notas, file, indent=4)
 
     def listar_titulos(self):
-        if self.existencia():
-            with open(archivo.titulo_archivo, "r") as file:
-                notas = json.load(file)
-                for nota in notas:
-                    print(f"Nota: {nota['titulo']}")
-
-    def modificar(self, titulo):
-        contenido = recolector.recibir_inputs()
         with open(archivo.titulo_archivo, "r") as file:
             notas = json.load(file)
-            notas_nuevas = [n for n in notas if n["titulo"] != titulo]
-            notas_nuevas.append(contenido)
-        with open(archivo.titulo_archivo, "w") as file:
-            json.dump(notas_nuevas, file, indent=4)
+            notas_ordenadas = sorted(notas, key=lambda x: x["titulo"])
+            return [n["titulo"] for n in notas_ordenadas if len(notas) >= 1]
 
-    def leer(self, titulo):
+    def leer_cuerpo(self, titulo):
         with open(archivo.titulo_archivo, "r") as file:
             notas = json.load(file)
             return "".join([n["cuerpo"] for n in notas if n["titulo"] == titulo])
 
-    def existencia(self) -> bool:
-        with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)
-            return len(notas) >= 1
-
     def existencia_titulo(self, titulo) -> bool:
         with open(archivo.titulo_archivo, "r") as file:
             notas = json.load(file)
-            for nota in notas:
-                if nota["titulo"] == titulo:
-                    return True
-            return False
+            return any(
+                n["titulo"] == titulo for n in notas
+            )  # en cuanto 'any' encuentra un True se detiene y retorna
 
     def eliminar(self, titulo):
         with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)  # Extrae la lista que hay dentro del json
+            notas = json.load(file)
             notas_nuevas = [n for n in notas if n["titulo"] != titulo]
 
         with open(archivo.titulo_archivo, "w") as file:
@@ -94,7 +78,6 @@ notas = Notas(recolector, archivo)
 
 def menu_principal():
     print("Bienvenido")
-    # 1.-
     if archivo.existencia():
         print(f"Accediendo al programa...")
         time.sleep(1)
@@ -116,8 +99,9 @@ def menu_principal():
                 case "1":
                     notas.crear()
                 case "2":
-                    print()
-                    notas.listar_titulos()
+                    print("\nNotas actuales: ")
+                    for t in notas.listar_titulos():
+                        print(t)
                     print()
                     opcion_titulo_o_atras = str(
                         input(
@@ -129,7 +113,6 @@ def menu_principal():
                         print("\nVolviendo al menú principal")
                         continue
                     else:
-                        # Con esto ya compruebas si existe ese titulo o no
                         if (
                             notas.existencia_titulo(opcion_titulo_o_atras)
                             and archivo.existencia()
@@ -144,12 +127,13 @@ def menu_principal():
                             match opcion_menu_notas:
                                 case "1":
                                     print(f"\nLeyendo nota: {opcion_titulo_o_atras}")
-                                    print(notas.leer(opcion_titulo_o_atras))
+                                    print(notas.leer_cuerpo(opcion_titulo_o_atras))
                                 case "2":
                                     print(
                                         f"\nModificando nota: {opcion_titulo_o_atras}"
                                     )
-                                    notas.modificar(opcion_titulo_o_atras)
+                                    notas.eliminar(opcion_titulo_o_atras)
+                                    notas.crear()
 
                                 case "3":
                                     print(f"\nEliminando nota: {opcion_titulo_o_atras}")
@@ -180,6 +164,7 @@ def menu_principal():
 
                 case "4":
                     print("\nSaliendo del programa")
+                    time.sleep(1)
                     break
         else:
             print("No se encuentra el archivo, reinicia el programa para crear otro.")
