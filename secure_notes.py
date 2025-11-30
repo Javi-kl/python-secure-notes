@@ -7,9 +7,9 @@ class ArchivoSeguro:
     def __init__(self) -> None:
         self.titulo_archivo = "cajafuerte.json"
 
-    def crear(self):
+    def crear(self, contenido=[]):
         with open(self.titulo_archivo, "w") as file:
-            json.dump([], file, indent=2)
+            json.dump(contenido, file, indent=4)
 
     def existencia(self) -> bool:
         return os.path.isfile(self.titulo_archivo)
@@ -21,8 +21,11 @@ class ArchivoSeguro:
 class RecolectorDatos:
     @staticmethod
     def recibir_inputs():
-        titulo_input = input("Introduce el titulo de la nota.\n-> ")
-        cuerpo_input = input("Introduce el cuerpo de la nota.\n-> ")
+        titulo_input = input("Introduce el titulo.\n-> ").lower()
+        cuerpo_input = input("Introduce el cuerpo.\n-> ").lower()
+        if not titulo_input or not cuerpo_input:
+            raise ValueError("Rellena todos los campos")
+
         contenido = {
             "titulo": titulo_input,
             "cuerpo": cuerpo_input,
@@ -31,52 +34,135 @@ class RecolectorDatos:
 
 
 class Notas:
-    # No tengo claro porque debo/buena practica, pasar estas instancias como atributo, si puedo acceder directamente a ellas.
     def __init__(self, recolector: RecolectorDatos, archivo: ArchivoSeguro) -> None:
         self.recolector = recolector
         self.archivo = archivo
 
-    def crear(self):
-        contenido = recolector.recibir_inputs()
+    def extraer_notas(self):
         with open(archivo.titulo_archivo, "r") as file:
             notas = json.load(file)
+            return notas
+
+    def crear(self):
+        try:
+            contenido = recolector.recibir_inputs()
+            notas = self.extraer_notas()
             notas.append(contenido)
-        with open(archivo.titulo_archivo, "w") as file:
-            json.dump(notas, file, indent=4)
+            archivo.crear(notas)
+        except ValueError as e:
+            print(f"Error: {e}")
+
+    def modificar(self, titulo):
+        notas.eliminar(titulo)
+        notas.crear()
 
     def listar_titulos(self):
-        with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)
-            notas_ordenadas = sorted(notas, key=lambda x: x["titulo"])
-            return [n["titulo"] for n in notas_ordenadas if len(notas) >= 1]
+        notas = self.extraer_notas()
+        notas_ordenadas = sorted(notas, key=lambda x: x["titulo"])
+        return [n["titulo"] for n in notas_ordenadas if len(notas) >= 1]
 
     def leer_cuerpo(self, titulo):
-        with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)
-            return "".join([n["cuerpo"] for n in notas if n["titulo"] == titulo])
+        notas = self.extraer_notas()
+        return "".join([n["cuerpo"] for n in notas if n["titulo"] == titulo])
 
-    def existencia_titulo(self, titulo) -> bool:
-        with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)
-            return any(
-                n["titulo"] == titulo for n in notas
-            )  # en cuanto 'any' encuentra un True se detiene y retorna
+    def existencia_titulo(self, titulo):
+        notas = self.extraer_notas()
+        existe = any(n["titulo"] == titulo for n in notas)
+        if not existe:
+            raise ValueError("Ese titulo no existe")
 
     def eliminar(self, titulo):
-        with open(archivo.titulo_archivo, "r") as file:
-            notas = json.load(file)
-            notas_nuevas = [n for n in notas if n["titulo"] != titulo]
-
-        with open(archivo.titulo_archivo, "w") as file:
-            json.dump(notas_nuevas, file, indent=4)
+        notas = self.extraer_notas()
+        notas_nuevas = [n for n in notas if n["titulo"] != titulo]
+        archivo.crear(notas_nuevas)
 
 
+class MostradorOpciones:
+    @staticmethod
+    def principal():
+        print("\n--- Menú principal ---")
+        print("1 -> Nueva nota")
+        print("2 -> Listar notas")
+        print("3 -> Eliminar archivo CIFRADO")
+        print("4 -> Salir")
+        opcion_menu_principal = input("-> ")
+        if not opcion_menu_principal.isdigit():
+            raise ValueError("Debes introducir un digito")
+        return opcion_menu_principal
+
+    @staticmethod
+    def notas_existentes():
+        print("\nNota encontrada\n")
+        print("Menú de notas:")
+        print("1 -> Leer nota")
+        print("2 -> Modificar nota")
+        print("3 -> Borrar nota")
+        print("4 -> Atrás")
+        opcion_notas = input("-> ")
+        if not opcion_notas.isdigit():
+            raise ValueError("Debes introducir un digito")
+        return opcion_notas
+
+    @staticmethod
+    def titulo_o_atras():
+        print("Opciones:\nEscribir titulo para opciones")
+        print("4 -> Volver al atrás")
+        opcion_titulo_o_atras = input("-> ").lower()
+        if not opcion_titulo_o_atras.isalnum():
+            raise ValueError("Debes introducir un número o texto")
+        return opcion_titulo_o_atras
+
+
+opciones = MostradorOpciones()
 archivo = ArchivoSeguro()
 recolector = RecolectorDatos()
 notas = Notas(recolector, archivo)
 
 
+def gestionar_notas_existentes():
+
+    print("\nNotas actuales: ")
+    for t in notas.listar_titulos():
+        print(t)
+    print()
+    try:
+        opcion_titulo = opciones.titulo_o_atras()
+    except ValueError as e:
+        print(f"Error: {e}")
+        return
+
+    if opcion_titulo == "4":
+        print("\nVolviendo al menú principal")
+        return
+    else:
+        try:
+            notas.existencia_titulo(opcion_titulo)
+        except ValueError as e:
+            print(f"Error: {e}")
+            print("Volviendo a menú")
+            return
+        try:
+            opcion_notas = opciones.notas_existentes()
+        except ValueError as e:
+            print(f"Error: {e}")
+            return
+        match opcion_notas:
+            case "1":
+                print(f"\nLeyendo nota: {opcion_titulo}")
+                print(notas.leer_cuerpo(opcion_titulo))
+            case "2":
+                print(f"\nModificando nota: {opcion_titulo}")
+                notas.modificar(opcion_titulo)
+            case "3":
+                print(f"\nEliminando nota: {opcion_titulo}")
+                notas.eliminar(opcion_titulo)
+            case "4":
+                print("\nVolviendo al menú principal")
+                menu_principal()
+
+
 def menu_principal():
+
     print("Bienvenido")
     if archivo.existencia():
         print(f"Accediendo al programa...")
@@ -87,87 +173,33 @@ def menu_principal():
         time.sleep(1)
 
     while True:
-        if archivo.existencia():
-            print("\n--- Menú principal ---")
-            print("1 -> Nueva nota")
-            print("2 -> Listar notas")
-            print("3 -> Eliminar archivo CIFRADO")
-            print("4 -> Salir")
-            opcion_menu_principal = str(input("-> "))
-
-            match opcion_menu_principal:
-                case "1":
-                    notas.crear()
-                case "2":
-                    print("\nNotas actuales: ")
-                    for t in notas.listar_titulos():
-                        print(t)
-                    print()
-                    opcion_titulo_o_atras = str(
-                        input(
-                            "Escribe el titulo de una nota para mas opciones"
-                            "\nO pulsa '4' para volver atrás-> "
-                        ).lower()
-                    )
-                    if opcion_titulo_o_atras == "4":
+        try:
+            opcion = opciones.principal()
+        except ValueError as e:
+            print(f"Error: {e}")
+            continue
+        match opcion:
+            case "1":
+                notas.crear()
+            case "2":
+                gestionar_notas_existentes()
+            case "3":
+                print(
+                    "¿Estas seguro de querer eliminar el archivo seguro?\n3 -> Si\n4 -> Atrás"
+                )
+                confirmacion = input()
+                match confirmacion:
+                    case "3":
+                        print("Archivo borrado")
+                        archivo.eliminar()
+                    case "4":
                         print("\nVolviendo al menú principal")
                         continue
-                    else:
-                        if (
-                            notas.existencia_titulo(opcion_titulo_o_atras)
-                            and archivo.existencia()
-                        ):
-                            print("\nNota encontrada\n")
-                            print("Menú de notas:")
-                            print("1 -> Leer nota")
-                            print("2 -> Modificar nota")
-                            print("3 -> Borrar nota")
-                            print("4 -> Atrás")
-                            opcion_menu_notas = input("-> ")
-                            match opcion_menu_notas:
-                                case "1":
-                                    print(f"\nLeyendo nota: {opcion_titulo_o_atras}")
-                                    print(notas.leer_cuerpo(opcion_titulo_o_atras))
-                                case "2":
-                                    print(
-                                        f"\nModificando nota: {opcion_titulo_o_atras}"
-                                    )
-                                    notas.eliminar(opcion_titulo_o_atras)
-                                    notas.crear()
 
-                                case "3":
-                                    print(f"\nEliminando nota: {opcion_titulo_o_atras}")
-                                    notas.eliminar(opcion_titulo_o_atras)
-
-                                case "4":
-                                    print("\nVolviendo al menú principal")
-                                    continue
-
-                        else:
-                            print(
-                                "La nota no existe o el titulo esta mal (manejar error)???"
-                            )
-                            print("\nVolviendo al menú principal")
-
-                case "3":
-                    print(
-                        "¿Estas seguro de querer eliminar el archivo seguro?\n3 -> Si\n4 -> Atrás"
-                    )
-                    confirmacion = input()
-                    match confirmacion:
-                        case "3":
-                            print("Archivo borrado")
-                            archivo.eliminar()
-                        case "4":
-                            print("\nVolviendo al menú principal")
-                            continue
-
-                case "4":
-                    print("\nSaliendo del programa")
-                    time.sleep(1)
-                    break
-        else:
-            print("No se encuentra el archivo, reinicia el programa para crear otro.")
+            case "4":
+                print("\nSaliendo del programa")
+                time.sleep(1)
+                break
 
 
 menu_principal()
