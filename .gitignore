@@ -4,7 +4,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
+.pytest_cache/  
 # Entorno virtual
 .venv/
 venv/

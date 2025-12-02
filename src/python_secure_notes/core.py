@@ -5,17 +5,17 @@ import time
 
 class ArchivoSeguro:
     def __init__(self) -> None:
-        self.titulo_archivo = "cajafuerte.json"
+        self.titulo = "cajafuerte.json"
 
     def crear(self, contenido=[]):
-        with open(self.titulo_archivo, "w") as file:
+        with open(self.titulo, "w") as file:
             json.dump(contenido, file, indent=4)
 
     def existencia(self) -> bool:
-        return os.path.isfile(self.titulo_archivo)
+        return os.path.isfile(self.titulo)
 
     def eliminar(self):
-        os.remove(self.titulo_archivo)
+        os.remove(self.titulo)
 
 
 class RecolectorDatos:
@@ -39,7 +39,7 @@ class Notas:
         self.archivo = archivo
 
     def extraer_notas(self):
-        with open(archivo.titulo_archivo, "r") as file:
+        with open(self.archivo.titulo, "r") as file:
             notas = json.load(file)
             return notas
 
@@ -162,16 +162,12 @@ def gestionar_notas_existentes():
 
 
 def menu_principal():
-
-    print("Bienvenido")
-    if archivo.existencia():
-        print(f"Accediendo al programa...")
-        time.sleep(1)
-    else:
+    if not archivo.existencia():
         print(f"Creando archivo seguro...")
         archivo.crear()
         time.sleep(1)
 
+    print("\n--- Bienvenido ---")
     while True:
         try:
             opcion = opciones.principal()
@@ -195,11 +191,5 @@ def menu_principal():
                     case "4":
                         print("\nVolviendo al menú principal")
                         continue
-
             case "4":
-                print("\nSaliendo del programa")
-                time.sleep(1)
                 break
-
-
-menu_principal()
