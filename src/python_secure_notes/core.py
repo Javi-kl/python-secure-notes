@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import re
 
 
 class ArchivoSeguro:
@@ -21,10 +22,16 @@ class ArchivoSeguro:
 class RecolectorDatos:
     @staticmethod
     def recibir_inputs():
-        titulo_input = input("Introduce el titulo.\n-> ").lower()
+        titulo_input = input("Introduce el titulo.\n-> ").lower().strip()
         cuerpo_input = input("Introduce el cuerpo.\n-> ").lower()
         if not titulo_input or not cuerpo_input:
             raise ValueError("Rellena todos los campos")
+
+        if len(titulo_input) > 150:
+            raise ValueError("Titulo demasiado largo. Max: 150 caracteres")
+
+        if len(cuerpo_input) > 5000:
+            raise ValueError("Cuerpo demasiado largo. Max: 5000 caracteres")
 
         contenido = {
             "titulo": titulo_input,
@@ -45,10 +52,10 @@ class Notas:
 
     def crear(self):
         try:
-            contenido = recolector.recibir_inputs()
+            contenido = self.recolector.recibir_inputs()
             notas = self.extraer_notas()
             notas.append(contenido)
-            archivo.crear(notas)
+            self.archivo.crear(notas)
         except ValueError as e:
             print(f"Error: {e}")
 
@@ -74,7 +81,7 @@ class Notas:
     def eliminar(self, titulo):
         notas = self.extraer_notas()
         notas_nuevas = [n for n in notas if n["titulo"] != titulo]
-        archivo.crear(notas_nuevas)
+        self.archivo.crear(notas_nuevas)
 
 
 class MostradorOpciones:
@@ -87,7 +94,7 @@ class MostradorOpciones:
         print("4 -> Salir")
         opcion_menu_principal = input("-> ")
         if not opcion_menu_principal.isdigit():
-            raise ValueError("Debes introducir un digito")
+            raise ValueError("Debes introducir un digito(1-4)")
         return opcion_menu_principal
 
     @staticmethod

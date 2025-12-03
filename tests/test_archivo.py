@@ -16,7 +16,7 @@ def test_archivo_creado_correctamente():
     archivo.crear(datos_a_guardar)
 
     # --- 3. ASSERT (Comprobar) ---
-    assert archivo.existencia() is True
+    assert os.path.isfile("test_temporal.json") is True
 
     with open("test_temporal.json", "r") as f:
         contenido_leido = json.load(f)
