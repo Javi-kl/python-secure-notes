@@ -1,12 +1,11 @@
 import pytest
 from src.python_secure_notes.core import RecolectorDatos
 
-# Casos de prueba válidos
 casos_validos = [
     ("mi titulo", "mi cuerpo"),
     ("título conñ", "cuerpo con acentos é"),
     (
-        "titulo_con-signos.validos",
+        "titulo_con-signos.",
         "cuerpo normal",
     ),
 ]
@@ -31,16 +30,15 @@ casos_invalidos = [
     ("  ", "cuerpo normal"),
     ("a" * 151, "cuerpo normal"),
     ("titulo normal", "c" * 5001),
+    ("1", "cuerpo normal"),
 ]
 
 
 @pytest.mark.parametrize("titulo_input, cuerpo_input", casos_invalidos)
 def test_inputs_invalidos_lanzan_error(monkeypatch, titulo_input, cuerpo_input):
-    # --- 1. ARRANGE (Preparar) ---
+
     respuestas = iter([titulo_input, cuerpo_input])
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
-    # --- 2. ACT (Actuar) ---
-    # --- 3. ASSERT (Comprobar) ---
     with pytest.raises(ValueError):
         RecolectorDatos.recibir_inputs()

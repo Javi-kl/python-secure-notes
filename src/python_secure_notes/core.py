@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import re
 
 
 class ArchivoSeguro:
@@ -26,6 +25,9 @@ class RecolectorDatos:
         cuerpo_input = input("Introduce el cuerpo.\n-> ").lower()
         if not titulo_input or not cuerpo_input:
             raise ValueError("Rellena todos los campos")
+
+        if titulo_input.isdigit():
+            raise ValueError("El titulo no puede contener solo digitos")
 
         if len(titulo_input) > 150:
             raise ValueError("Titulo demasiado largo. Max: 150 caracteres")
@@ -92,10 +94,16 @@ class MostradorOpciones:
         print("2 -> Listar notas")
         print("3 -> Eliminar archivo CIFRADO")
         print("4 -> Salir")
-        opcion_menu_principal = input("-> ")
-        if not opcion_menu_principal.isdigit():
-            raise ValueError("Debes introducir un digito(1-4)")
-        return opcion_menu_principal
+        opcion = input("-> ")
+
+        if not opcion.isdigit() or opcion not in [
+            "1",
+            "2",
+            "3",
+            "4",
+        ]:
+            raise ValueError("Debes introducir un digito (1-4)")
+        return opcion
 
     @staticmethod
     def notas_existentes():
@@ -105,19 +113,20 @@ class MostradorOpciones:
         print("2 -> Modificar nota")
         print("3 -> Borrar nota")
         print("4 -> Atrás")
-        opcion_notas = input("-> ")
-        if not opcion_notas.isdigit():
-            raise ValueError("Debes introducir un digito")
-        return opcion_notas
+        opcion = input("-> ")
+        if not opcion.isdigit() or opcion not in ["1", "2", "3", "4"]:
+            raise ValueError("Debes introducir un digito (1-4)")
+        return opcion
 
     @staticmethod
     def titulo_o_atras():
         print("Opciones:\nEscribir titulo para opciones")
         print("4 -> Volver al atrás")
-        opcion_titulo_o_atras = input("-> ").lower()
-        if not opcion_titulo_o_atras.isalnum():
-            raise ValueError("Debes introducir un número o texto")
-        return opcion_titulo_o_atras
+        opcion = input("-> ").lower()
+
+        if opcion.isdigit() and opcion != "4" or not opcion.isalnum():
+            raise ValueError("Debes introducir (4) o texto")
+        return opcion
 
 
 opciones = MostradorOpciones()
