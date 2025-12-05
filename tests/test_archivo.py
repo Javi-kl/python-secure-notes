@@ -1,27 +1,45 @@
-import pytest
 import json
-import os
 from src.python_secure_notes.core import ArchivoSeguro
 
 
-def test_archivo_creado_correctamente():
-    # --- 1. ARRANGE (Preparar) ---
+def test_archivo_crear_y_guardar_contenido(tmp_path):
+    ruta_archivo = tmp_path / "archivo_cifrado_test.json"
     archivo = ArchivoSeguro()
+    archivo.titulo = str(ruta_archivo)
 
-    archivo.titulo = "test_temporal.json"
+    contenido = [{"titulo": "t1", "cuerpo": "c1"}]
 
-    datos_a_guardar = [{"titulo": "prueba", "cuerpo": "test"}]
+    archivo.crear(contenido)
 
-    # --- 2. ACT (Actuar) ---
-    archivo.crear(datos_a_guardar)
+    assert ruta_archivo.exists()
 
-    # --- 3. ASSERT (Comprobar) ---
-    assert os.path.isfile("test_temporal.json") is True
+    with ruta_archivo.open("r") as f:
+        datos = json.load(f)
+    assert datos == contenido
 
-    with open("test_temporal.json", "r") as f:
-        contenido_leido = json.load(f)
-        assert contenido_leido == datos_a_guardar
 
-    # limpiar archivo
-    if archivo.existencia():
-        archivo.eliminar()
+def test_existencia_devuelve_bool(tmp_path):
+    ruta_archivo = tmp_path / "archivo_cifrado_test.json"
+    archivo = ArchivoSeguro()
+    archivo.titulo = str(ruta_archivo)
+
+    assert archivo.existencia() is False
+
+    archivo.crear([])
+
+    assert archivo.existencia() is True
+
+
+def test_eliminar_borra_archivo(tmp_path):
+    ruta_archivo = tmp_path / "cajafuerte_test.json"
+
+    archivo = ArchivoSeguro()
+    archivo.titulo = str(ruta_archivo)
+
+    archivo.crear([])
+
+    assert ruta_archivo.exists()
+
+    archivo.eliminar()
+
+    assert not ruta_archivo.exists()

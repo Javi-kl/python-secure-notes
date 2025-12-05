@@ -5,7 +5,7 @@ import time
 
 class ArchivoSeguro:
     def __init__(self) -> None:
-        self.titulo = "cajafuerte.json"
+        self.titulo = "archivo_cifrado.json"
 
     def crear(self, contenido=[]):
         with open(self.titulo, "w") as file:
@@ -88,6 +88,19 @@ class Notas:
 
 class MostradorOpciones:
     @staticmethod
+    def validar_opcion(opcion, opciones_validas):
+        opciones_formated = opciones_validas[0] + "-" + opciones_validas[-1]
+        if opcion not in opciones_validas:
+            raise ValueError(f"Debes introducir un digito: {opciones_formated}")
+
+    @staticmethod
+    def validar_titulo_o_salir(opcion, opcion_salir="4"):
+        if opcion == opcion_salir:
+            return
+        if (opcion.isdigit() and opcion != opcion_salir) or not opcion.isalnum():
+            raise ValueError("Error: introduce (4) para volver o un titúlo de nota")
+
+    @staticmethod
     def principal():
         print("\n--- Menú principal ---")
         print("1 -> Nueva nota")
@@ -95,14 +108,7 @@ class MostradorOpciones:
         print("3 -> Eliminar archivo CIFRADO")
         print("4 -> Salir")
         opcion = input("-> ")
-
-        if not opcion.isdigit() or opcion not in [
-            "1",
-            "2",
-            "3",
-            "4",
-        ]:
-            raise ValueError("Debes introducir un digito (1-4)")
+        MostradorOpciones.validar_opcion(opcion, ["1", "2", "3", "4"])
         return opcion
 
     @staticmethod
@@ -114,8 +120,7 @@ class MostradorOpciones:
         print("3 -> Borrar nota")
         print("4 -> Atrás")
         opcion = input("-> ")
-        if not opcion.isdigit() or opcion not in ["1", "2", "3", "4"]:
-            raise ValueError("Debes introducir un digito (1-4)")
+        MostradorOpciones.validar_opcion(opcion, ["1", "2", "3", "4"])
         return opcion
 
     @staticmethod
@@ -123,9 +128,7 @@ class MostradorOpciones:
         print("Opciones:\nEscribir titulo para opciones")
         print("4 -> Volver al atrás")
         opcion = input("-> ").lower()
-
-        if opcion.isdigit() and opcion != "4" or not opcion.isalnum():
-            raise ValueError("Debes introducir (4) o texto")
+        MostradorOpciones.validar_titulo_o_salir(opcion, opcion_salir="4")
         return opcion
 
 
