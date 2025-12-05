@@ -1,5 +1,5 @@
 # Python secure notes
-Proyecto personal python CLI para guardar notas encriptadas
+Proyecto CLI para guardar notas encriptadas
 
 ### Ejecutar programa
     Desde la carpeta raiz:
