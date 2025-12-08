@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from .cifrado import Cifrador
 
 
 class ArchivoSeguro:
@@ -182,8 +183,10 @@ def gestionar_notas_existentes():
 
 def menu_principal():
     if not archivo.existencia():
-        print(f"Creando archivo seguro...")
+        print(f"Creando archivo y clave de cifrado...")
         archivo.crear()
+        print(Cifrador.generar_clave())
+        print("Guarde su clave de forma segura")
         time.sleep(1)
 
     print("\n--- Bienvenido ---")
