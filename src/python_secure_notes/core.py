@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from .cifrado import Cifrador
+from .cifrar_descifrar import Cifrador
 
 
 class ArchivoSeguro:
@@ -185,7 +185,7 @@ def menu_principal():
     if not archivo.existencia():
         print(f"Creando archivo y clave de cifrado...")
         archivo.crear()
-        print(Cifrador.generar_clave())
+
         print("Guarde su clave de forma segura")
         time.sleep(1)
 
