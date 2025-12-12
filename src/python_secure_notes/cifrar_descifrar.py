@@ -1,14 +1,9 @@
-import base64  # urlsafe_b64encode permite transformar los bytes generados por PBKDF2HMAC en una clave legible para Fernet
-import os  # Permite usar el sistema operativo
-from cryptography.fernet import Fernet  # Realiza el cifrado y descifrado
-from cryptography.hazmat.primitives import (
-    hashes,
-)  # Permite a PBKDF2HMAC , utilizar SHA256(estándar actual) para crear la clave
-
-# Convierte la clave de usuario + salt, en una clave válida para fernet, ejecutando 480000iteraciones (estandar actual)
+import base64
+import os
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import getpass  # Permite al usuario introducir una contraseña oculta en pantalla
-from .core import archivo
+import getpass
 
 
 class Cifrador:
@@ -40,6 +35,7 @@ class Cifrador:
         )
         return base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
+    # se llama al cifrar por primera vez y al cerrar archivo
     def cifrar(self, ruta_archivo: str, password: str = None):
         """args: ruta del archivo a cifrar
             Contraseña(Si es None, la pide por consola)
@@ -69,9 +65,7 @@ class Cifrador:
         returns: path del archivo descifrado"""
 
         if password is None:
-            password = getpass.getpass(
-                "Introduce tu contraseña"
-            )  # Getpass se puede utilizar en windows?
+            password = getpass.getpass("Introduce tu contraseña")
 
         key = self._derivar_clave(password)
         f = Fernet(key)
@@ -91,6 +85,3 @@ class Cifrador:
 
         print(f"Descifrado {ruta_descifrada}")
         return ruta_descifrada
-
-
-cifrador = Cifrador()
