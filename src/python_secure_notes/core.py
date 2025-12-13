@@ -1,22 +1,31 @@
 import json
 import os
-import time
 from .cifrar_descifrar import Cifrador
 
 
 class ArchivoSeguro:
     def __init__(self) -> None:
-        self.titulo = "caja_fuerte.json"
+        self.ruta = "caja_fuerte.json"
+        self.ruta_cifrada = ""
+
+    def guardar_archivo_cifrado(self, ruta_cifrada):
+        self.ruta_cifrada = ruta_cifrada
 
     def crear(self, contenido=[]):
-        with open(self.titulo, "w") as file:
+        with open(self.ruta, "w") as file:
             json.dump(contenido, file, indent=4)
 
-    def existencia(self) -> bool:
-        return os.path.isfile(self.titulo)
+    def existencia_cifrado(self) -> bool:
+        return os.path.isfile(self.ruta_cifrada)
 
-    def eliminar(self):
-        os.remove(self.titulo)
+    def existencia(self) -> bool:
+        return os.path.isfile(self.ruta)
+
+    def eliminar_archivo_cifrado(self):
+        os.remove(self.ruta_cifrada)
+
+    def eliminar_archivo_simple(self):
+        os.remove(self.ruta)
 
 
 class RecolectorDatos:
@@ -49,7 +58,7 @@ class Notas:
         self.archivo = archivo
 
     def extraer_notas(self):
-        with open(self.archivo.titulo, "r") as file:
+        with open(self.archivo.ruta, "r") as file:
             notas = json.load(file)
             return notas
 
@@ -106,37 +115,57 @@ class MostradorOpciones:
             )
 
     @staticmethod
-    def principal():
+    def menu_principal():
         print("\n--- Menú principal ---")
         print("1 -> Menú Cifrado")  # TODO Este menú solo para el cifrado
-        print("2 -> Menú Notas")  # TODO Este menu solo para notas
-        print("3 -> Eliminar archivo")
+        print("2 -> Menú Notas")
+        print("3 -> Menú archivo")
         print("4 -> Salir")
         opcion = input("-> ")
         MostradorOpciones.validar_opcion(opcion, ["1", "2", "3", "4"])
         return opcion
 
     @staticmethod
-    def notas_existentes():
+    def submenu_notas_existentes():
         print("\nNota encontrada\n")
-        print("Menú de notas:")
+        print("Opciones notas existentes:")
         print("1 -> Leer nota")
         print("2 -> Modificar nota")
         print("3 -> Borrar nota")
-        print("4 -> Atrás")
+        print("4 -> Volver atrás")
         opcion = input("-> ")
         MostradorOpciones.validar_opcion(opcion, ["1", "2", "3", "4"])
         return opcion
 
     @staticmethod
-    def gestion_notas():
-        print("Opciones:\n1 -> Nueva nota")
+    def submenu_notas():
+        print("Opciones notas:\n1 -> Nueva nota")
         print("Seleccionar nota existente 'por título'")
-        print("4 -> Volver al atrás")
+        print("4 -> Volver atrás")
         opcion = input("-> ").lower()
         MostradorOpciones.validar_opcion_notas(
             opcion, opcion_crear="1", opcion_salir="4"
         )
+        return opcion
+
+    @staticmethod
+    def submenu_cifrado():
+        print("Opciones cifrado")
+        print("1 -> Cifrar archivo")
+        print("2 -> Descifrar archivo")
+        print("4 -> Volver atrás")
+        opcion = input("-> ")
+        MostradorOpciones.validar_opcion(opcion, ["1", "2", "4"])
+        return opcion
+
+    @staticmethod
+    def submenu_archivo():
+        print("Opciones archivo")
+        print("1 -> Crear archivo")
+        print("2 -> Borrar archivo")
+        print("4 -> Volver atrás")
+        opcion = input("-> ")
+        MostradorOpciones.validar_opcion(opcion, ["1", "2", "4"])
         return opcion
 
 
@@ -147,14 +176,13 @@ notas = Notas(recolector, archivo)
 cifrador = Cifrador()
 
 
-def gestionar_notas():
-
+def submenu_notas():
     print("\nNotas actuales: ")
     for t in notas.listar_titulos():
         print(t)
     print()
     try:
-        opcion_notas = opciones.gestion_notas()
+        opcion_notas = opciones.submenu_notas()
     except ValueError as e:
         print(f"Error: {e}")
         return
@@ -172,7 +200,7 @@ def gestionar_notas():
             print("Volviendo a menú")
             return
         try:
-            opcion_notas_existentes = opciones.notas_existentes()
+            opcion_notas_existentes = opciones.submenu_notas_existentes()
         except ValueError as e:
             print(f"Error: {e}")
             return
@@ -188,40 +216,89 @@ def gestionar_notas():
                 notas.eliminar(opcion_notas)
             case "4":
                 print("\nVolviendo al menú principal")
-                menu_principal()
+                return
+
+
+def submenu_archivo():
+    try:
+        opcion = opciones.submenu_archivo()
+    except ValueError as e:
+        print(f"Error: {e}")
+        return
+    match opcion:
+        case "1":
+            if not archivo.existencia() or archivo.existencia_cifrado:
+                archivo.crear()
+            else:
+                print("Archivo ya existente, no puedes crear uno ahora")
+
+        case "2":
+            print(
+                "¿Estas seguro de querer eliminar el archivo seguro?\n3 -> Si\n4 -> Atrás"
+            )
+            confirmacion = input()
+            match confirmacion:
+                case "3":
+                    try:
+                        print("Archivo borrado")
+                        archivo.eliminar_archivo_simple()
+                        archivo.eliminar_archivo_cifrado()
+                    except FileNotFoundError as e:
+                        print(f"Error: {e}")
+                case "4":
+                    print("\nVolviendo al menú principal")
+                    return
+        case "4":
+            return
+
+
+def submenu_cifrado():
+    try:
+        opcion = opciones.submenu_cifrado()
+    except ValueError as e:
+        print(f"Error: {e}")
+        return
+
+    match opcion:
+        case "1":
+            # manejar si existe primero
+            try:
+                ruta_cifrada = cifrador.cifrar(archivo.ruta)
+                archivo.guardar_archivo_cifrado(ruta_cifrada)
+                print(f"Archivo guardado: {archivo.ruta_cifrada}")
+                archivo.eliminar_archivo_simple()
+            except ValueError as e:
+                print(f"Error: {e}")
+            except FileNotFoundError as e:
+                print(f"Error: {e}")
+        case "2":
+            # TODO
+            cifrador.descifrar(archivo.ruta_cifrada)
+            archivo.eliminar_archivo_cifrado()
+
+        case "4":
+            return
 
 
 def menu_principal():
-    if not archivo.existencia():
-        print(f"Creando archivo y clave de cifrado...")
+    if not archivo.existencia() or archivo.existencia_cifrado:
+        print(f"Creando archivo...")
         archivo.crear()
-
-        time.sleep(1)
 
     print("\n--- Bienvenido ---")
     while True:
         try:
-            opcion = opciones.principal()
+            opcion = opciones.menu_principal()
         except ValueError as e:
             print(f"Error: {e}")
             continue
+
         match opcion:
             case "1":
-                pass
-                # cifrador
+                submenu_cifrado()
             case "2":
-                gestionar_notas()
+                submenu_notas()
             case "3":
-                print(
-                    "¿Estas seguro de querer eliminar el archivo seguro?\n3 -> Si\n4 -> Atrás"
-                )
-                confirmacion = input()
-                match confirmacion:
-                    case "3":
-                        print("Archivo borrado")
-                        archivo.eliminar()
-                    case "4":
-                        print("\nVolviendo al menú principal")
-                        continue
+                submenu_archivo()
             case "4":
                 break

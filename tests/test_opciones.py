@@ -11,7 +11,7 @@ def test_recibir_input_numeros_validos_principal(monkeypatch, input):
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
     # --- 2. ACT (Actuar) ---
-    resultado_menu_principal = MostradorOpciones.principal()
+    resultado_menu_principal = MostradorOpciones.menu_principal()
 
     # --- 3. ASSERT (Comprobar) ---
     assert resultado_menu_principal == input
@@ -23,7 +23,7 @@ def test_recibir_input_numeros_validos_notas(monkeypatch, input):
     respuestas = iter(input)
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
-    resultado_notas_existentes = MostradorOpciones.notas_existentes()
+    resultado_notas_existentes = MostradorOpciones.submenu_notas_existentes()
 
     assert resultado_notas_existentes == input
 
@@ -34,7 +34,7 @@ def test_recibir_input_letras_o_numeros_validos_titulos(monkeypatch, input):
     respuestas = iter(input)
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
-    resultado = MostradorOpciones.gestion_notas()
+    resultado = MostradorOpciones.submenu_notas()
 
     assert resultado == input
 
@@ -48,7 +48,7 @@ def test_recibir_inputs_lanzan_error_principal(monkeypatch, input):
     mensaje_esperado = re.escape("Debes introducir un digito: 1-4")
 
     with pytest.raises(ValueError, match=mensaje_esperado):
-        MostradorOpciones.principal()
+        MostradorOpciones.menu_principal()
 
 
 # Casos NO validos para notas existentes
@@ -69,7 +69,7 @@ def test_recibir_inputs_lanzan_error_notas(monkeypatch, input):
     mensaje_esperado = re.escape("Debes introducir un digito: 1-4")
 
     with pytest.raises(ValueError, match=mensaje_esperado):
-        MostradorOpciones.notas_existentes()
+        MostradorOpciones.submenu_notas_existentes()
 
 
 # Casos no válidos para gestion notas
@@ -93,4 +93,7 @@ def test_recibir_inputs_lanzan_error_titulos(monkeypatch, input, mensaje_esperad
     mensaje_regex = re.escape(mensaje_esperado)
 
     with pytest.raises(ValueError, match=mensaje_regex):
-        MostradorOpciones.gestion_notas()
+        MostradorOpciones.submenu_notas()
+
+
+# TODO FALTA TESTS DE SUBMENU ARCHIVO Y CIFRADOR
