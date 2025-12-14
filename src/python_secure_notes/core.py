@@ -30,10 +30,9 @@ class ArchivoSeguro:
 
 class RecolectorDatos:
     @staticmethod
-    def recibir_inputs():
+    def recibir_titulo():
         titulo_input = input("Introduce el titulo.\n-> ").lower().strip()
-        cuerpo_input = input("Introduce el cuerpo.\n-> ").lower()
-        if not titulo_input or not cuerpo_input:
+        if not titulo_input:
             raise ValueError("Rellena todos los campos")
 
         if titulo_input.isdigit():
@@ -41,10 +40,22 @@ class RecolectorDatos:
 
         if len(titulo_input) > 150:
             raise ValueError("Titulo demasiado largo. Max: 150 caracteres")
+        return titulo_input
+
+    @staticmethod
+    def recibir_cuerpo():
+        cuerpo_input = input("Introduce el cuerpo.\n-> ").lower()
+        if not cuerpo_input:
+            raise ValueError("Rellena todos los campos")
 
         if len(cuerpo_input) > 5000:
             raise ValueError("Cuerpo demasiado largo. Max: 5000 caracteres")
+        return cuerpo_input
 
+    @staticmethod
+    def crear_contenido():
+        titulo_input = RecolectorDatos.recibir_titulo()
+        cuerpo_input = RecolectorDatos.recibir_cuerpo()
         contenido = {
             "titulo": titulo_input,
             "cuerpo": cuerpo_input,
@@ -64,7 +75,7 @@ class Notas:
 
     def crear(self):
         try:
-            contenido = self.recolector.recibir_inputs()
+            contenido = self.recolector.crear_contenido()
             notas = self.extraer_notas()
             notas.append(contenido)
             self.archivo.crear(notas)
@@ -104,22 +115,11 @@ class MostradorOpciones:
             raise ValueError(f"Debes introducir un digito: {opciones_formated}")
 
     @staticmethod
-    def validar_opcion_notas(opcion, opcion_crear="1", opcion_salir="4"):
-        if opcion in [opcion_crear, opcion_salir]:
-            return
-        if opcion.isdigit():
-            raise ValueError("Error: introduce (1), (4) o título de nota")
-        if not opcion.isalnum():
-            raise ValueError(
-                "Error: introduce (1) -> crear (4) -> volver o un título de nota"
-            )
-
-    @staticmethod
     def menu_principal():
         print("\n--- Menú principal ---")
-        print("1 -> Menú Cifrado")  # TODO Este menú solo para el cifrado
-        print("2 -> Menú Notas")
-        print("3 -> Menú archivo")
+        print("1 -> Opciones Cifrado")  # TODO Este menú solo para el cifrado
+        print("2 -> Opciones Notas")
+        print("3 -> Opciones archivo")
         print("4 -> Salir")
         opcion = input("-> ")
         MostradorOpciones.validar_opcion(opcion, ["1", "2", "3", "4"])
@@ -140,12 +140,10 @@ class MostradorOpciones:
     @staticmethod
     def submenu_notas():
         print("Opciones notas:\n1 -> Nueva nota")
-        print("Seleccionar nota existente 'por título'")
+        print("2 -> Seleccionar nota existente 'por título'")
         print("4 -> Volver atrás")
         opcion = input("-> ").lower()
-        MostradorOpciones.validar_opcion_notas(
-            opcion, opcion_crear="1", opcion_salir="4"
-        )
+        MostradorOpciones.validar_opcion(opcion, ["1", "2", "4"])
         return opcion
 
     @staticmethod
@@ -192,9 +190,10 @@ def submenu_notas():
         return
     elif opcion_notas == "1":
         notas.crear()
-    else:
+    elif opcion_notas == "2":
+        titulo = recolector.recibir_titulo()
         try:
-            notas.existencia_titulo(opcion_notas)
+            notas.existencia_titulo(titulo)
         except ValueError as e:
             print(f"Error: {e}")
             print("Volviendo a menú")
@@ -206,14 +205,14 @@ def submenu_notas():
             return
         match opcion_notas_existentes:
             case "1":
-                print(f"\nLeyendo nota: {opcion_notas}")
-                print(notas.leer_cuerpo(opcion_notas))
+                print(f"\nLeyendo nota: {titulo}")
+                print(notas.leer_cuerpo(titulo))
             case "2":
-                print(f"\nModificando nota: {opcion_notas}")
-                notas.modificar(opcion_notas)
+                print(f"\nModificando nota: {titulo}")
+                notas.modificar(titulo)
             case "3":
-                print(f"\nEliminando nota: {opcion_notas}")
-                notas.eliminar(opcion_notas)
+                print(f"\nEliminando nota: {titulo}")
+                notas.eliminar(titulo)
             case "4":
                 print("\nVolviendo al menú principal")
                 return
@@ -227,7 +226,7 @@ def submenu_archivo():
         return
     match opcion:
         case "1":
-            if not archivo.existencia() or archivo.existencia_cifrado:
+            if not archivo.existencia() or archivo.existencia_cifrado():
                 archivo.crear()
             else:
                 print("Archivo ya existente, no puedes crear uno ahora")
@@ -261,16 +260,18 @@ def submenu_cifrado():
 
     match opcion:
         case "1":
-            # manejar si existe primero
-            try:
-                ruta_cifrada = cifrador.cifrar(archivo.ruta)
-                archivo.guardar_archivo_cifrado(ruta_cifrada)
-                print(f"Archivo guardado: {archivo.ruta_cifrada}")
-                archivo.eliminar_archivo_simple()
-            except ValueError as e:
-                print(f"Error: {e}")
-            except FileNotFoundError as e:
-                print(f"Error: {e}")
+            if not archivo.existencia_cifrado():
+                try:
+                    ruta_cifrada = cifrador.cifrar(archivo.ruta)
+                    archivo.guardar_archivo_cifrado(ruta_cifrada)
+                    print(f"Archivo guardado: {archivo.ruta_cifrada}")
+                    archivo.eliminar_archivo_simple()
+                except ValueError as e:
+                    print(f"Error: {e}")
+                except FileNotFoundError as e:
+                    print(f"Error: {e}")
+            else:
+                print("El archivo ya está cifrado")
         case "2":
             # TODO
             cifrador.descifrar(archivo.ruta_cifrada)
@@ -281,9 +282,6 @@ def submenu_cifrado():
 
 
 def menu_principal():
-    if not archivo.existencia() or archivo.existencia_cifrado:
-        print(f"Creando archivo...")
-        archivo.crear()
 
     print("\n--- Bienvenido ---")
     while True:

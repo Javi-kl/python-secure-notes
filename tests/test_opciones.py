@@ -19,7 +19,7 @@ def test_recibir_input_numeros_validos_principal(monkeypatch, input):
 
 # Casos validos para notas existentes
 @pytest.mark.parametrize("input", ["1", "2", "3", "4"])
-def test_recibir_input_numeros_validos_notas(monkeypatch, input):
+def test_recibir_input_numeros_validos_notas_existentes(monkeypatch, input):
     respuestas = iter(input)
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
@@ -29,8 +29,8 @@ def test_recibir_input_numeros_validos_notas(monkeypatch, input):
 
 
 # Casos validos para titulos
-@pytest.mark.parametrize("input", ["a", "4", "1"])
-def test_recibir_input_letras_o_numeros_validos_titulos(monkeypatch, input):
+@pytest.mark.parametrize("input", ["1", "2", "4"])
+def test_recibir_input_numeros_validos_notas(monkeypatch, input):
     respuestas = iter(input)
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
@@ -72,25 +72,20 @@ def test_recibir_inputs_lanzan_error_notas(monkeypatch, input):
         MostradorOpciones.submenu_notas_existentes()
 
 
-# Casos no válidos para gestion notas
-MSG_NUMERICO = "Error: introduce (1), (4) o título de nota"
-MSG_ALFANUMERICO = "Error: introduce (1) -> crear (4) -> volver o un título de nota"
-
-
 @pytest.mark.parametrize(
-    "input, mensaje_esperado",
+    "input",
     [
-        ("0.1", MSG_ALFANUMERICO),
-        (" ", MSG_ALFANUMERICO),
-        (".", MSG_ALFANUMERICO),
-        ("3", MSG_NUMERICO),
+        "0.1",
+        " ",
+        ".",
+        "3",
     ],
 )
-def test_recibir_inputs_lanzan_error_titulos(monkeypatch, input, mensaje_esperado):
+def test_recibir_inputs_lanzan_error_titulos(monkeypatch, input):
     respuestas = iter([input])
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
-    mensaje_regex = re.escape(mensaje_esperado)
+    mensaje_regex = re.escape("Debes introducir un digito: 1-4")
 
     with pytest.raises(ValueError, match=mensaje_regex):
         MostradorOpciones.submenu_notas()
