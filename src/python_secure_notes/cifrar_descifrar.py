@@ -1,6 +1,7 @@
 import base64
 import os
-from cryptography.fernet import Fernet
+
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import getpass
@@ -75,8 +76,8 @@ class Cifrador:
 
         try:
             datos_originales = f.decrypt(datos_cifrados)
-        except:
-            ValueError("Contraseña incorrecta")
+        except InvalidToken:
+            raise ValueError("Contraseña incorrecta")
 
         ruta_descifrada = ruta_cifrada.replace(".encrypted", "")
 

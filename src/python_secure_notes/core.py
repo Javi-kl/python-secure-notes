@@ -7,9 +7,26 @@ class ArchivoSeguro:
     def __init__(self) -> None:
         self.ruta = "caja_fuerte.json"
         self.ruta_cifrada = ""
+        self.ruta_estado = "estado_archivo_cifrado.json"
+
+        self.cargar_estado()
 
     def guardar_archivo_cifrado(self, ruta_cifrada):
         self.ruta_cifrada = ruta_cifrada
+        self.guardar_estado()
+
+    def guardar_estado(self):
+        with open(self.ruta_estado, "w") as f:
+            json.dump({"ruta_cifrada": self.ruta_cifrada}, f, indent=4)
+
+    def cargar_estado(self):
+        if not os.path.isfile(self.ruta_estado):
+            return
+        with open(self.ruta_estado, "r") as file:
+            data = json.load(file)
+            self.ruta_cifrada = data.get("ruta_cifrada", "")
+        if self.ruta_cifrada and not os.path.isfile(self.ruta_cifrada):
+            self.ruta_cifrada = ""
 
     def crear(self, contenido=[]):
         with open(self.ruta, "w") as file:
@@ -105,6 +122,10 @@ class Notas:
         notas = self.extraer_notas()
         notas_nuevas = [n for n in notas if n["titulo"] != titulo]
         self.archivo.crear(notas_nuevas)
+
+    def existen_notas(self):
+        notas = self.extraer_notas()
+        return notas != None
 
 
 class MostradorOpciones:
@@ -226,8 +247,9 @@ def submenu_archivo():
         return
     match opcion:
         case "1":
-            if not archivo.existencia() or archivo.existencia_cifrado():
+            if not (archivo.existencia() or archivo.existencia_cifrado()):
                 archivo.crear()
+                print("\nArchivo creado")
             else:
                 print("Archivo ya existente, no puedes crear uno ahora")
 
@@ -273,16 +295,16 @@ def submenu_cifrado():
             else:
                 print("El archivo ya está cifrado")
         case "2":
-            # TODO
-            cifrador.descifrar(archivo.ruta_cifrada)
-            archivo.eliminar_archivo_cifrado()
-
+            if archivo.existencia_cifrado():
+                cifrador.descifrar(archivo.ruta_cifrada)
+                archivo.eliminar_archivo_cifrado()
+            else:
+                print("No hay archivo cifrado que descifrar")
         case "4":
             return
 
 
 def menu_principal():
-
     print("\n--- Bienvenido ---")
     while True:
         try:
@@ -293,9 +315,18 @@ def menu_principal():
 
         match opcion:
             case "1":
-                submenu_cifrado()
+                if not archivo.existencia() and not archivo.existencia_cifrado():
+                    print("Archivo no existe, crea uno antes.")
+                    continue
+                else:
+                    submenu_cifrado()
+
             case "2":
-                submenu_notas()
+                if not archivo.existencia() and not archivo.existencia_cifrado():
+                    print("Archivo no existe, crea uno antes.")
+                    continue
+                else:
+                    submenu_notas()
             case "3":
                 submenu_archivo()
             case "4":
