@@ -43,6 +43,3 @@ def test_eliminar_borra_archivo(tmp_path):
     archivo.eliminar_archivo_simple()
 
     assert not ruta_archivo.exists()
-
-
-# TODO FALTA HACER TESTS RUTA CIFRADA, EXISTENCIA CIFRADO Y ELIMINAR ARCHIVO CIFRADO

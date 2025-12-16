@@ -72,6 +72,7 @@ def test_recibir_inputs_lanzan_error_notas(monkeypatch, input):
         MostradorOpciones.submenu_notas_existentes()
 
 
+# Casos NO validos para titulos
 @pytest.mark.parametrize(
     "input",
     [
@@ -89,6 +90,3 @@ def test_recibir_inputs_lanzan_error_titulos(monkeypatch, input):
 
     with pytest.raises(ValueError, match=mensaje_regex):
         MostradorOpciones.submenu_notas()
-
-
-# TODO FALTA TESTS DE SUBMENU ARCHIVO Y CIFRADOR

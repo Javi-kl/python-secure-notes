@@ -39,10 +39,16 @@ class ArchivoSeguro:
         return os.path.isfile(self.ruta)
 
     def eliminar_archivo_cifrado(self):
-        os.remove(self.ruta_cifrada)
+        if self.existencia_cifrado():
+            os.remove(self.ruta_cifrada)
+            return True
+        return False
 
     def eliminar_archivo_simple(self):
-        os.remove(self.ruta)
+        if self.existencia():
+            os.remove(self.ruta)
+            return True
+        return False
 
 
 class RecolectorDatos:
@@ -100,8 +106,17 @@ class Notas:
             print(f"Error: {e}")
 
     def modificar(self, titulo):
-        notas.eliminar(titulo)
-        notas.crear()
+        try:
+            nuevo = self.recolector.crear_contenido()
+            notas = self.extraer_notas()
+            for n in notas:
+                if n["titulo"] == titulo:
+                    n["titulo"] = nuevo["titulo"]
+                    n["cuerpo"] = nuevo["cuerpo"]
+                    break
+            self.archivo.crear(notas)
+        except ValueError as e:
+            print(f"Error: {e}")
 
     def listar_titulos(self):
         notas = self.extraer_notas()
@@ -138,7 +153,7 @@ class MostradorOpciones:
     @staticmethod
     def menu_principal():
         print("\n--- Menú principal ---")
-        print("1 -> Opciones Cifrado")  # TODO Este menú solo para el cifrado
+        print("1 -> Opciones Cifrado")
         print("2 -> Opciones Notas")
         print("3 -> Opciones archivo")
         print("4 -> Salir")
@@ -260,12 +275,13 @@ def submenu_archivo():
             confirmacion = input()
             match confirmacion:
                 case "3":
-                    try:
+                    borrado1 = archivo.eliminar_archivo_simple()
+                    borrado2 = archivo.eliminar_archivo_cifrado()
+                    if borrado1 or borrado2:
                         print("Archivo borrado")
-                        archivo.eliminar_archivo_simple()
-                        archivo.eliminar_archivo_cifrado()
-                    except FileNotFoundError as e:
-                        print(f"Error: {e}")
+                    else:
+                        print("No había nada que borrar")
+
                 case "4":
                     print("\nVolviendo al menú principal")
                     return
@@ -296,8 +312,11 @@ def submenu_cifrado():
                 print("El archivo ya está cifrado")
         case "2":
             if archivo.existencia_cifrado():
-                cifrador.descifrar(archivo.ruta_cifrada)
-                archivo.eliminar_archivo_cifrado()
+                try:
+                    cifrador.descifrar(archivo.ruta_cifrada)
+                    archivo.eliminar_archivo_cifrado()
+                except ValueError as e:
+                    print(f"Error: {e}")
             else:
                 print("No hay archivo cifrado que descifrar")
         case "4":
@@ -322,11 +341,14 @@ def menu_principal():
                     submenu_cifrado()
 
             case "2":
-                if not archivo.existencia() and not archivo.existencia_cifrado():
-                    print("Archivo no existe, crea uno antes.")
-                    continue
-                else:
+                if archivo.existencia() and not archivo.existencia_cifrado():
                     submenu_notas()
+                else:
+                    print(
+                        "No puedes acceder a notas, archivo no existe o está cifrado."
+                    )
+                    continue
+
             case "3":
                 submenu_archivo()
             case "4":
