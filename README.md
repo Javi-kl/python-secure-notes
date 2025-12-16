@@ -4,9 +4,9 @@ Aplicación CLI para gestionar notas encriptadas usando Python.
 ## Características
 
 - CRUD completo de notas
-- Tests con pytest
-- Encriptación de contenido (Proximamente)
-- CLI mejorada (Proximamente)
+- Cifrado/descifrado de archivo usando `cryptography`.
+- Tests con pytest (Cobertura parcial)
+
 
 ## Instalación
 
@@ -15,25 +15,16 @@ cd python-secure-notes
 pip install -r requirements.txt
 
 
-### Ejecutar programa
+### Ejecutar 
 python3 -m src.python_secure_notes.main
 
 
-### Ejecutar tests
-**Ejecutar todos los tests**
-    pytest
-
-**Solo tests de un archivo**
-    pytest test_archivo.py
-    pytest test_opciones.py
-    pytest test_recolector.py
-    
-**Parar en el primer fallo**
-    pytest -x
+### Tests
+pytest
 
 
 ## Tecnologías
 
 - Python 3.10+
 - pytest
-
+- cryptography

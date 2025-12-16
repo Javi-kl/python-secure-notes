@@ -5,7 +5,7 @@ from src.python_secure_notes.core import ArchivoSeguro
 def test_archivo_crear_y_guardar_contenido(tmp_path):
     ruta_archivo = tmp_path / "archivo_cifrado_test.json"
     archivo = ArchivoSeguro()
-    archivo.titulo = str(ruta_archivo)
+    archivo.ruta = str(ruta_archivo)
 
     contenido = [{"titulo": "t1", "cuerpo": "c1"}]
 
@@ -21,7 +21,7 @@ def test_archivo_crear_y_guardar_contenido(tmp_path):
 def test_existencia_devuelve_bool(tmp_path):
     ruta_archivo = tmp_path / "archivo_cifrado_test.json"
     archivo = ArchivoSeguro()
-    archivo.titulo = str(ruta_archivo)
+    archivo.ruta = str(ruta_archivo)
 
     assert archivo.existencia() is False
 
@@ -34,12 +34,12 @@ def test_eliminar_borra_archivo(tmp_path):
     ruta_archivo = tmp_path / "cajafuerte_test.json"
 
     archivo = ArchivoSeguro()
-    archivo.titulo = str(ruta_archivo)
+    archivo.ruta = str(ruta_archivo)
 
     archivo.crear([])
 
     assert ruta_archivo.exists()
 
-    archivo.eliminar()
+    archivo.eliminar_archivo_simple()
 
     assert not ruta_archivo.exists()
