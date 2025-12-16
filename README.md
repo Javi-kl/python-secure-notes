@@ -10,17 +10,19 @@ Aplicación CLI para gestionar notas encriptadas usando Python.
 
 ## Instalación
 
+```
 git clone https://github.com/javi-kl/python-secure-notes.git
 cd python-secure-notes
 pip install -r requirements.txt
+```
 
 
 ### Ejecutar 
-python3 -m src.python_secure_notes.main
+```python3 -m src.python_secure_notes.main```
 
 
 ### Tests
-pytest
+```pytest```
 
 
 ## Tecnologías
