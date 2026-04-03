@@ -1,5 +1,5 @@
 import json
-from src.python_secure_notes.core import ArchivoSeguro
+from python_secure_notes.archivo.archivo import ArchivoSeguro
 
 
 def test_archivo_crear_y_guardar_contenido(tmp_path):

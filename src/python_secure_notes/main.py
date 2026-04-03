@@ -1,4 +1,4 @@
-from .core import menu_principal
+from .core.core import menu_principal
 import time
 
 

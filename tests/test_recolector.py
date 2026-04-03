@@ -1,5 +1,5 @@
 import pytest
-from src.python_secure_notes.core import RecolectorDatos
+from python_secure_notes.core.recolector_data import RecolectorDatos
 
 
 @pytest.mark.parametrize(

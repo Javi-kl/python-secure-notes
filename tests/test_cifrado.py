@@ -1,5 +1,5 @@
 from pathlib import Path
-from src.python_secure_notes.cifrar_descifrar import Cifrador
+from python_secure_notes.archivo.cifrar_descifrar import Cifrador
 import pytest
 
 
