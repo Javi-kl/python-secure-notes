@@ -1,5 +1,5 @@
 import pytest
-from src.python_secure_notes.core import MostradorOpciones
+from python_secure_notes.core.menu_options import MostradorOpciones
 import re
 
 
