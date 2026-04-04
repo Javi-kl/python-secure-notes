@@ -1,5 +1,5 @@
 import pytest
-from python_secure_notes.core.menu_options import MostradorOpciones
+from python_secure_notes.core.menu_options import opciones_menu_principal, opciones_submenu_notas_existentes, opciones_submenu_notas
 import re
 
 
@@ -11,7 +11,7 @@ def test_recibir_input_numeros_validos_principal(monkeypatch, input):
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
     # --- 2. ACT (Actuar) ---
-    resultado_menu_principal = MostradorOpciones.menu_principal()
+    resultado_menu_principal = opciones_menu_principal()
 
     # --- 3. ASSERT (Comprobar) ---
     assert resultado_menu_principal == input
@@ -23,7 +23,7 @@ def test_recibir_input_numeros_validos_notas_existentes(monkeypatch, input):
     respuestas = iter(input)
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
-    resultado_notas_existentes = MostradorOpciones.submenu_notas_existentes()
+    resultado_notas_existentes = opciones_submenu_notas_existentes()
 
     assert resultado_notas_existentes == input
 
@@ -34,7 +34,7 @@ def test_recibir_input_numeros_validos_notas(monkeypatch, input):
     respuestas = iter(input)
     monkeypatch.setattr("builtins.input", lambda msg: next(respuestas))
 
-    resultado = MostradorOpciones.submenu_notas()
+    resultado = opciones_submenu_notas()
 
     assert resultado == input
 
@@ -48,7 +48,7 @@ def test_recibir_inputs_lanzan_error_principal(monkeypatch, input):
     mensaje_esperado = re.escape("Debes introducir un digito: 1-4")
 
     with pytest.raises(ValueError, match=mensaje_esperado):
-        MostradorOpciones.menu_principal()
+        opciones_menu_principal()
 
 
 # Casos NO validos para notas existentes
@@ -69,7 +69,7 @@ def test_recibir_inputs_lanzan_error_notas(monkeypatch, input):
     mensaje_esperado = re.escape("Debes introducir un digito: 1-4")
 
     with pytest.raises(ValueError, match=mensaje_esperado):
-        MostradorOpciones.submenu_notas_existentes()
+        opciones_submenu_notas_existentes()
 
 
 # Casos NO validos para titulos
@@ -89,4 +89,4 @@ def test_recibir_inputs_lanzan_error_titulos(monkeypatch, input):
     mensaje_regex = re.escape("Debes introducir un digito: 1-4")
 
     with pytest.raises(ValueError, match=mensaje_regex):
-        MostradorOpciones.submenu_notas()
+        opciones_submenu_notas()

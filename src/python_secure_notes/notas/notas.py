@@ -1,10 +1,9 @@
-from ..core.recolector_data import RecolectorDatos 
+from ..core.recolector_data import crear_contenido 
 from ..archivo.archivo import ArchivoSeguro
 import json
 
 class Notas:
-    def __init__(self, recolector: RecolectorDatos, archivo: ArchivoSeguro) -> None:
-        self.recolector = recolector
+    def __init__(self, archivo: ArchivoSeguro) -> None:
         self.archivo = archivo
 
     def extraer_notas(self):
@@ -14,8 +13,8 @@ class Notas:
 
     def crear(self):
         try:
-            contenido = self.recolector.crear_contenido()
-            notas = self.extraer_notas()
+            contenido = crear_contenido()
+            notas = self.extraer_notas(). He
             notas.append(contenido)
             self.archivo.crear(notas)
         except ValueError as e:
@@ -23,7 +22,7 @@ class Notas:
 
     def modificar(self, titulo):
         try:
-            nuevo = self.recolector.crear_contenido()
+            nuevo = crear_contenido()
             notas = self.extraer_notas()
             for n in notas:
                 if n["titulo"] == titulo:
