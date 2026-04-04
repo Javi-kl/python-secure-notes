@@ -1,17 +1,17 @@
 from ..notas.notas import Notas
 from ..archivo.cifrar_descifrar import Cifrador
-from .menu_options import MostradorOpciones
+from .menu_options import opciones_submenu_archivo,opciones_submenu_cifrado, opciones_submenu_notas, opciones_menu_principal, opciones_submenu_notas_existentes
 from ..archivo.archivo import ArchivoSeguro
-from .recolector_data import RecolectorDatos
+from .recolector_data import recibir_titulo
 
 
-def submenu_notas(notas, recolector, opciones):
+def submenu_notas(notas):
     print("\nNotas actuales: ")
     for t in notas.listar_titulos():
         print(t)
     print()
     try:
-        opcion_notas = opciones.submenu_notas()
+        opcion_notas = opciones_submenu_notas()
     except ValueError as e:
         print(f"Error: {e}")
         return
@@ -22,7 +22,7 @@ def submenu_notas(notas, recolector, opciones):
     elif opcion_notas == "1":
         notas.crear()
     elif opcion_notas == "2":
-        titulo = recolector.recibir_titulo()
+        titulo = recibir_titulo()
         try:
             notas.existencia_titulo(titulo)
         except ValueError as e:
@@ -30,7 +30,7 @@ def submenu_notas(notas, recolector, opciones):
             print("Volviendo a menú")
             return
         try:
-            opcion_notas_existentes = opciones.submenu_notas_existentes()
+            opcion_notas_existentes = opciones_submenu_notas_existentes()
         except ValueError as e:
             print(f"Error: {e}")
             return
@@ -49,9 +49,9 @@ def submenu_notas(notas, recolector, opciones):
                 return
 
 
-def submenu_archivo(archivo, opciones):
+def submenu_archivo(archivo):
     try:
-        opcion = opciones.submenu_archivo()
+        opcion = opciones_submenu_archivo()
     except ValueError as e:
         print(f"Error: {e}")
         return
@@ -84,9 +84,9 @@ def submenu_archivo(archivo, opciones):
             return
 
 
-def submenu_cifrado(archivo, cifrador, opciones):
+def submenu_cifrado(archivo, cifrador):
     try:
-        opcion = opciones.submenu_cifrado()
+        opcion = opciones_submenu_cifrado()
     except ValueError as e:
         print(f"Error: {e}")
         return
@@ -119,15 +119,14 @@ def submenu_cifrado(archivo, cifrador, opciones):
 
 
 def menu_principal():
-    opciones = MostradorOpciones()
+    
     archivo = ArchivoSeguro()
-    recolector = RecolectorDatos()
-    notas = Notas(recolector, archivo)
+    notas = Notas(archivo)
     cifrador = Cifrador()
     print("\n--- Bienvenido ---")
     while True:
         try:
-            opcion = opciones.menu_principal()
+            opcion = opciones_menu_principal()
         except ValueError as e:
             print(f"Error: {e}")
             continue
@@ -138,11 +137,11 @@ def menu_principal():
                     print("Archivo no existe, crea uno antes.")
                     continue
                 else:
-                    submenu_cifrado(archivo, cifrador, opciones)
+                    submenu_cifrado(archivo, cifrador)
 
             case "2":
                 if archivo.existencia() and not archivo.existencia_cifrado():
-                    submenu_notas(notas, recolector, opciones)
+                    submenu_notas(notas, recibir_titulo)
                 else:
                     print(
                         "No puedes acceder a notas, archivo no existe o está cifrado."
@@ -150,6 +149,6 @@ def menu_principal():
                     continue
 
             case "3":
-                submenu_archivo(archivo, opciones)
+                submenu_archivo(archivo)
             case "4":
                 break
